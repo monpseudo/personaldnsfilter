@@ -19,11 +19,11 @@
 
     <application
         android:icon="@drawable/icon"
-        android:label="@string/app_name"
+        android:label="AdZHosts DNSFilter"
         android:theme="@style/Theme.phttpp.TitleBar" >
         <activity
             android:name="dnsfilter.android.DNSProxyActivity"
-            android:label="@string/app_name" >
+            android:label="AdZHosts DNSFilter" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
