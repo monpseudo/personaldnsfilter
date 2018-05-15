@@ -23,7 +23,7 @@ android:type="linear"
 
     <shape  android:shape="rectangle">
 
-    <solid android:color="#00BEA4" />
+    <solid android:color="#E18025" />
     <corners android:radius="6dp" />
     </shape>
 
