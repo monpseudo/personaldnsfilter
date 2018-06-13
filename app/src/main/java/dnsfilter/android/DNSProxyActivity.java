@@ -102,6 +102,18 @@ public class DNSProxyActivity extends Activity implements OnClickListener, Logge
 	
 	private static Intent SERVICE = null;
 
+
+	private class AsyncStop implements Runnable {
+		@Override
+		public synchronized void run() {
+			try {
+				wait(1000);
+			} catch (Exception e) {
+				Logger.getLogger().logException(e);
+			}
+			System.exit(0);
+		}
+	}
 	private class MyUIThreadLogger implements Runnable {;
 
 		private String m_logStr;
@@ -111,38 +123,24 @@ public class DNSProxyActivity extends Activity implements OnClickListener, Logge
 		}
 
 		@Override
-		public void run() {
+		public synchronized void run() {
 			logSize = logSize + m_logStr.length();
 			logOutView.append(m_logStr);
 			if (logSize >=20000) {
 				String logStr = logOutView.getText().toString();
 				logStr = logStr.substring(logSize-10000);
 				logSize = logStr.length();
-				logOutView.setText(logStr);
-			}
-			logOutView.setSelection(logSize);
+				logOutView.setText(logStr);				
+			}			
+			//logOutView.setSelection(logSize);
+			logOutView.setSelection(logOutView.getText().length());
 			scrollView.fullScroll(ScrollView.FOCUS_DOWN);
 			setTitle("personalDNSfilter (Connections:"+DNSFilterService.openConnectionsCount()+")");
 			dnsField.setText(DNSCommunicator.getInstance().getLastDNSAddress());
 		}
 	}	
 	
-	private void threadDump() {
-		Map<Thread, StackTraceElement[]> dump = Thread.getAllStackTraces();
-		Iterator<Thread> threadIt = dump.keySet().iterator();
-		while (threadIt.hasNext()) {
-			Thread t = threadIt.next();
-			StackTraceElement[] stack = dump.get(t);
-			Logger.getLogger().logLine(t.toString());
-			Logger.getLogger().logLine("********************************************************************");
-			
-			for (int i = 0; i < stack.length; i++) {
-				Logger.getLogger().logLine(stack[i].toString());
-			}
-		}
-	}
-	
-	
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -664,20 +662,18 @@ public class DNSProxyActivity extends Activity implements OnClickListener, Logge
 	}
 
 
-	private void handleStop() {	
-		if (dnsField.getText().toString().equals("9999999999")) {
-			threadDump();
-			return;
-		}
+	private synchronized void handleStop() {
+
 		if (!DNSFilterService.stop())
 			return;
 		
 		if (SERVICE != null) 
 			stopService(SERVICE);
 		SERVICE = null;
-		appStart = true;
-		//finish();	
-		System.exit(0);
+		
+		this.finish();
+
+		new Thread(new AsyncStop()).start();
 	}
 
 	private void handleStart() {			
