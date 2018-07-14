@@ -476,8 +476,11 @@ public class DNSFilterManager implements LoggerInterface
 					BufferedReader addHostIn = new BufferedReader(new InputStreamReader(new FileInputStream(additionalHosts)));
 					String entry = null;
 					while ((entry = addHostIn.readLine()) != null) {
-						if (entry.startsWith("!"))
+						if (entry.startsWith("!")) {
+							if (hostsFilterOverRule == null)
+								hostsFilterOverRule = new Hashtable();
 							hostsFilterOverRule.put(entry.substring(1).trim(), new Boolean(false));
+						}
 					}
 					addHostIn.close();
 				}
